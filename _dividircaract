@@ -1,0 +1,17 @@
+=LAMBDA(texto; núm_caract; [número]; [inverso]; [maiúscula];
+    LET(
+        n; SE(inverso; -NÚM.CARACT(texto); 1);
+        matriz; EXT.TEXTO(
+            texto;
+            SEQUÊNCIA(NÚM.CARACT(texto); ; n) * SINAL(n);
+            núm_caract
+        );
+        txt; TEXTO(matriz; ";");
+        num; --TEXTO(matriz; "0;;0;");
+        varT; SE(txt = ""; NÃO.DISP(); txt);
+        fnl; PARACOL(SE(ISOMITTED(número); matriz; SE(número; num; varT)); 3);
+        upper; PARACOL(SE(EXATO(fnl; MAIÚSCULA(fnl)); fnl; NÃO.DISP()); 3);
+        lower; PARACOL(SE(EXATO(fnl; MINÚSCULA(fnl)); fnl; NÃO.DISP()); 3);
+        SE(ISOMITTED(maiúscula); fnl; SE(maiúscula; upper; lower))
+    )
+)

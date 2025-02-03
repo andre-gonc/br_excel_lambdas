@@ -1,0 +1,12 @@
+=LAMBDA(
+  texto;                       
+  delimitador_inicial; 
+  delimitador_final; 
+  TEXTOANTES(
+    TEXTODEPOIS(
+      texto;
+      delimitador_inicial
+    );
+    delimitador_final
+  )
+)

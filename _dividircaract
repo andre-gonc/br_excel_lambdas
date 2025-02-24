@@ -1,0 +1,23 @@
+=LAMBDA(texto; núm_caract; [número]; [inverso]; [maiúscula];
+    LET(
+        digito; MÁXIMO(núm_caract; 1);
+        n; SE(inverso; -NÚM.CARACT(texto); 1);
+        matriz; EXT.TEXTO(texto; SEQUÊNCIA(NÚM.CARACT(texto); ; n) * SINAL(n); digito);
+        txt; TEXTO(matriz; ";");
+        num; --TEXTO(matriz; "0;;0;");
+        varT; SE(txt = ""; NÃO.DISP(); txt);
+        fnl; PARACOL(SE(ISOMITTED(número); matriz; SE(número; num; varT)); 3);
+        upper; PARACOL(TEXTO(SE(EXATO(fnl; MAIÚSCULA(fnl)); fnl; NÃO.DISP()); ";"); 3);
+        lower; PARACOL(TEXTO(SE(EXATO(fnl; MINÚSCULA(fnl)); fnl; NÃO.DISP()); ";"); 3);
+        rst; SE(ISOMITTED(maiúscula); fnl; SE(maiúscula; upper; lower));
+        SE(núm_caract = 0; CONCAT(rst); rst)
+    )
+)
+
+
+A sintaxe da função _dividircaract tem os seguintes argumentos:
+    - texto: O texto que você deseja dividir. Obrigatório.
+    - núm_caract: Especifica o número de caracteres que a função deve retornar do texto. Por padrão 0, não divide o texto. Obrigatório.
+    - número: Especifique 1 se você deseja extrair apenas números. O padrão é vazio, que faz uma correspondência que ignora este argumento, caso especifique 0, a função retorna apenas textos. Opcional.
+    - inverso: Especifique 1 para caracteres com ordem invertida. O padrão é 0, que ignora a inversão do texto. Opcional.
+    - maiúscula: Especifique 1 para executar uma correspondência que diferencia correspondências maiúsculas. O padrão é vazio, que não diferencia maiúsculas de minúsculas. Se especificar 0, retorna apenas correspondências minúsculas. Opcional.

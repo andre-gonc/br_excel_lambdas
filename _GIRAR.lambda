@@ -1,8 +1,20 @@
-=LAMBDA(input;n;[lap];[baseline];
+-------------------------- Português ----------------------------------
+=LAMBDA(input;shift;[lap];[start];
     LET(
         inicio;SE(ÉNÚM(input);input;UNICODE(input));
-        index;SE(ISOMITTED(baseline);65;baseline);
-        saida;index+MOD(inicio-index+n;SE(ISOMITTED(lap);26;lap));
+        index;SE(ISOMITTED(start);65;start);
+        saida;index+MOD(inicio-index+shift;SE(ISOMITTED(lap);26;lap));
         SE(ÉNÚM(input);saida;CARACTUNICODE(saida))
     )
 )
+------------------------------------------------------------------------
+-------------------------- Inglês --------------------------------------
+=LAMBDA(input,shift,[lap],[start],
+    LET(
+        inicio,IF(ISNUMBER(input),input,UNICODE(input)),
+        index,IF(ISOMITTED(start),65,start),
+        saida,index+MOD(inicio-index+shift,IF(ISOMITTED(lap),26,lap)),
+        IF(ISNUMBER(input),saida,UNICHAR(saida))
+    )
+)
+-------------------------------------------------------------------------

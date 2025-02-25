@@ -1,6 +1,7 @@
 Lambda recursiva, precisa ser salva com o nome _CAMINHO para funcionar
 Funciona apenas com os seguintes caracteres de deslocamento: {↓,↘,←,↖,↙,↗,→,↑}
 
+-------------------------------- Português -----------------------------
 =LAMBDA(endereco;nMovimentos;
     SE(nMovimentos<=0;endereco;
         LET(
@@ -13,3 +14,18 @@ Funciona apenas com os seguintes caracteres de deslocamento: {↓,↘,←,↖,�
         )
     )
 )
+-----------------------------------------------------------------------
+------------------------------- Inglês --------------------------------
+=LAMBDA(endereco,nMovimentos,
+    IF(nMovimentos<=0,endereco,
+        LET(
+            ref,INDIRECT(endereco),
+            indice,UNICODE(ref)-8591,
+            coluna,COLUMN(ref)+CHOOSE(indice,-1,0,1,0,,,-1,1,1,-1),
+            linha,ROW(ref)+CHOOSE(indice,0,-1,0,1,,,-1,-1,1,1),
+            novoEndereco,ADDRESS(linha,coluna,4),
+            VSTACK(endereco,_CAMINHO(novoEndereco,nMovimentos-1))
+        )
+    )
+)
+-----------------------------------------------------------------------

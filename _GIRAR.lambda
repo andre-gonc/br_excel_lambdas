@@ -1,3 +1,6 @@
+Os dois últimos argumentos da lambda são opcionais e adotam os valores de 26 e 65 para aterder o deslocamento do alfabeto maiúsculo
+Para o alfabeto minúsculo, preencher o último argumento com 97, unicode da letra "a"
+
 -------------------------- Português ----------------------------------
 =LAMBDA(input;shift;[lap];[start];
     LET(

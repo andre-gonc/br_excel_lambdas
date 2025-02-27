@@ -1,0 +1,23 @@
+Os dois últimos argumentos da lambda são opcionais e adotam os valores de 26 e 65 para atender o deslocamento do alfabeto maiúsculo
+Para o alfabeto minúsculo, preencher o último argumento com 97, unicode da letra "a"
+
+-------------------------- Português ----------------------------------
+=LAMBDA(input;shift;[lap];[start];
+    LET(
+        entrada;SE(ÉNÚM(input);input;UNICODE(input));
+        inicio;SE(ISOMITTED(start);65;start);
+        saida;inicio+MOD(entrada-inicio+shift;SE(ISOMITTED(lap);26;lap));
+        SE(ÉNÚM(input);saida;CARACTUNICODE(saida))
+    )
+)
+------------------------------------------------------------------------
+-------------------------- Inglês --------------------------------------
+=LAMBDA(input,shift,[lap],[start],
+    LET(
+        inicio,IF(ISNUMBER(input),input,UNICODE(input)),
+        index,IF(ISOMITTED(start),65,start),
+        saida,index+MOD(inicio-index+shift,IF(ISOMITTED(lap),26,lap)),
+        IF(ISNUMBER(input),saida,UNICHAR(saida))
+    )
+)
+-------------------------------------------------------------------------

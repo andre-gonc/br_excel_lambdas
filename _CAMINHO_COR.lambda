@@ -1,0 +1,20 @@
+=LAMBDA(start;nMovimentos;
+    LET(
+        n;nMovimentos+1;
+        cor;INFO.CÉL(38;INDIRETO(start));
+        vizinhos;LAMBDA(txRef;MAP({-1;0;1;0};{0;1;0;-1};LAMBDA(l;c;ENDEREÇO(LIN(INDIRETO(txRef))+l;COL(INDIRETO(txRef))+c;4))));
+        trajeto;SCAN(
+            start;
+            SEQUÊNCIA(n);
+            LAMBDA(a;v;
+                LET(
+                    anterior;SE(v=1;"";a());
+                    atual;SE(v=1;a;ÍNDICE(a();;2));
+                    proximo;REDUCE(;vizinhos(atual);LAMBDA(x;y;SE(E(INFO.CÉL(38;INDIRETO(y))=cor;y<>anterior);y;x)));
+                    LAMBDA(EMPILHARH(atual;proximo))
+                )
+            )
+        );
+        trajeto()
+    )
+)

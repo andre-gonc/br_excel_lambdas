@@ -1,0 +1,61 @@
+=LAMBDA(Total_Periodos;Taxa;Frequencia_Taxa;[Linha_Coluna];[HELP];
+   SE(ISOMITTED(HELP);
+     SE(
+       (ISOMITTED(Linha_Coluna))+(Linha_Coluna=0);
+       PEGAR(
+         PARALIN(
+           SE(
+             SEQUÊNCIA(
+               ;
+               Frequencia_Taxa
+             );
+             POTÊNCIA(
+               1+Taxa;
+               SEQUÊNCIA(
+                 ARREDONDAR.PARA.CIMA(
+                   Total_Periodos/Frequencia_Taxa;
+                   0
+                 );
+                 ;
+                 0
+               )
+             )
+           )
+         );
+         ;
+         Total_Periodos
+       );
+       PEGAR(
+         PARACOL(
+           SE(
+             SEQUÊNCIA(
+               ;
+               Frequencia_Taxa
+             );
+             POTÊNCIA(
+               1+Taxa;
+               SEQUÊNCIA(
+                 ARREDONDAR.PARA.CIMA(
+                   Total_Periodos/Frequencia_Taxa;
+                   0
+                 );
+                 ;
+                 0
+               )
+             )
+           )
+         );
+         ;
+         Total_Periodos
+       )
+     );
+     LET(
+       total_per; "Total_Periodos [Obrigatório] -> Quantidade total de períodos que serão mostrados no resultado.";
+       taxa; "Taxa [Obrigatório] -> Taxa aplicada por período.";
+       freq; "Frequencia_Taxa [Obrigatório] -> Frequência com que a taxa é aplicada. Ex.: Se Taxa é anual e os períodos são mensais, deve ser inserido o valor 12. Se a Taxa for mensal e os períodos mensais, 1.";
+       collin; "Linha_Coluna [Opcional] -> Se 0 ou vazio, retornará o resultado em linha. Qualquer outro caso, retorna em coluna";
+       help; "HELP -> Qualquer valor inserido neste campo retornará esta mensagem.";
+       EMPILHARV(total_per;taxa;freq;collin;help)
+     )
+   )
+ )

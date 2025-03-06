@@ -1,0 +1,27 @@
+Gira uma matriz um determinado número de linhas (nLin) e/ou colunas (nCol)
+
+------------------- Português --------------------------
+=LAMBDA(matriz;[nLin];[nCol];
+    LET(
+        linhas;LINS(matriz);
+        colunas;COLS(matriz);
+        linha;SE(ISOMITTED(nLin);0;MOD(-nLin;linhas));
+        coluna;SE(ISOMITTED(nCol);0;MOD(-nCol;colunas));
+        matrizLinha;SE(linha;EMPILHARV(DESCARTAR(matriz;linha);PEGAR(matriz;linha));matriz);
+        SE(coluna;EMPILHARH(DESCARTAR(matrizLinha;;coluna);PEGAR(matrizLinha;;coluna));matrizLinha)
+    )
+)
+---------------------------------------------------------
+
+------------------- Inglês ------------------------------
+=LAMBDA(matriz,[nLin],[nCol],
+    LET(
+        linhas,ROWS(matriz),
+        colunas,COLUMNS(matriz),
+        linha,IF(ISOMITTED(nLin),0,MOD(-nLin,linhas)),
+        coluna,IF(ISOMITTED(nCol),0,MOD(-nCol,colunas)),
+        matrizLinha,IF(linha,VSTACK(DROP(matriz,linha),TAKE(matriz,linha)),matriz),
+        IF(coluna,HSTACK(DROP(matrizLinha,,coluna),TAKE(matrizLinha,,coluna)),matrizLinha)
+    )
+)
+----------------------------------------------------------

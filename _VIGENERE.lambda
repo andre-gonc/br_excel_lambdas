@@ -1,0 +1,23 @@
+=LAMBDA(input; key;
+  LET(
+    upper_input;          MAIÚSCULA(input);
+    upper_key;            MAIÚSCULA(key);
+    array_input_caracts;  REGEX.EXTRAIR(upper_input;".";1);
+    array_key_caracts;    REGEX.EXTRAIR(upper_key;".";1);
+    unicode_input;        UNICODE(array_input_caracts);
+    unicode_key;          UNICODE(array_key_caracts);
+    qnt_key_repts;        ARREDONDAR.PARA.CIMA(NÚM.CARACT(input)/NÚM.CARACT(key); 0);
+    bidim_key_array;         SE(
+                                SEQUÊNCIA(qnt_key_repts);
+                                unicode_key-64
+                          );
+    final_key_array;      PEGAR(
+                            PARALIN(bidim_key_array);;
+                            NÚM.CARACT(input)
+                          );
+    unicode_uncipher;     MOD(unicode_input - final_key_array - 65; 26) + 65;
+    output_array;         CARACTUNICODE(unicode_uncipher);
+    string_result;        CONCAT(output_array);
+    string_result
+  )
+)

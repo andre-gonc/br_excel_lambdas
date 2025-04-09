@@ -1,0 +1,17 @@
+=LAMBDA(x; fx; 
+   LET(
+     n; LINS(x);
+     SE(
+       n > 1;
+       LET(
+         l; QUOCIENTE(n; 2);
+         x¹; PEGAR(x; l);
+         x²; DESCARTAR(x; l);
+         y¹; _BiRow(x¹; fx);
+         y²; _BiRow(x²; fx);
+         SEERRO(EMPILHARV(y¹; y²); "")
+       );
+       fx(x)
+     )
+   )
+ )

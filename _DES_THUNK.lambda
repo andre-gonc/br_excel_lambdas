@@ -1,0 +1,19 @@
+------------------------ Português -------------------------------
+=LAMBDA(thunk;
+    MAKEARRAY(
+        LINS(thunk);
+        MÁXIMO(SCAN(0;thunk;LAMBDA(_;b;COLS(b()))));
+        LAMBDA(lin;col;ÍNDICE(ÍNDICE(thunk;lin;1)();1;col))
+    )
+)
+-----------------------------------------------------------------
+
+----------------------- Inglês ----------------------------------
+=LAMBDA(thunk,
+    MAKEARRAY(
+        ROWS(thunk),
+        MAX(SCAN(0,thunk,LAMBDA(_,b,COLUMNS(b())))),
+        LAMBDA(lin,col,INDEX(INDEX(thunk,lin,1)(),1,col))
+    )
+)
+------------------------------------------------------------------

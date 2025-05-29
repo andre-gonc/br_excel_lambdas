@@ -2,13 +2,17 @@
     LET(
         digito; MÁXIMO(núm_caract; 1);
         n; SE(inverso; -NÚM.CARACT(texto); 1);
-        matriz; EXT.TEXTO(texto; SEQUÊNCIA(NÚM.CARACT(texto); ; n) * SINAL(n); digito);
+        matriz; EXT.TEXTO(
+            texto;
+            SEQUÊNCIA(ARREDONDAR.PARA.CIMA(NÚM.CARACT(texto) / núm_caract; 0); ; n; núm_caract) * SINAL(n);
+            digito
+        );
         txt; TEXTO(matriz; ";");
         num; --TEXTO(matriz; "0;;0;");
-        varT; SE(txt = ""; NÃO.DISP(); txt);
+        varT; SES(txt <> ""; txt);
         fnl; PARACOL(SE(ISOMITTED(número); matriz; SE(número; num; varT)); 3);
-        upper; PARACOL(TEXTO(SE(EXATO(fnl; MAIÚSCULA(fnl)); fnl; NÃO.DISP()); ";"); 3);
-        lower; PARACOL(TEXTO(SE(EXATO(fnl; MINÚSCULA(fnl)); fnl; NÃO.DISP()); ";"); 3);
+        upper; PARACOL(TEXTO(SES(EXATO(fnl; MAIÚSCULA(fnl)); fnl); ";"); 3);
+        lower; PARACOL(TEXTO(SES(EXATO(fnl; MINÚSCULA(fnl)); fnl); ";"); 3);
         rst; SE(ISOMITTED(maiúscula); fnl; SE(maiúscula; upper; lower));
         SE(núm_caract = 0; CONCAT(rst); rst)
     )

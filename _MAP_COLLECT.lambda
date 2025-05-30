@@ -1,0 +1,81 @@
+//For this lambda you need two maps, one with the color indices or any other identifier (color_map) and the original map, with the items to be collected (collection_map).
+
+=LAMBDA(start_ref, end_ref, diagonal, color_map, collection_map,
+    LET(
+        num_rows, ROWS(color_map),
+        num_cols, COLUMNS(color_map),
+        row_adjust, @ROW(color_map) - 1,
+        col_adjust, @COLUMN(color_map) - 1,
+        s_row_rel, _LIN(start_ref) - row_adjust,
+        s_col_rel, _COL(start_ref) - col_adjust,
+        target, +INDEX(color_map, s_row_rel, s_col_rel),
+        e_row_rel, _LIN(end_ref) - row_adjust,
+        e_col_rel, _COL(end_ref) - col_adjust,
+        dRow, IF(diagonal, {-1; -1; -1; 0; 0; 1; 1; 1}, {-1; 0; 0; 1}),
+        dCol, IF(diagonal, {-1; 0; 1; -1; 1; -1; 0; 1}, {0; -1; 1; 0}),
+        _collection, LAMBDA(self, arr,
+            LAMBDA([x], [y], [v],
+                IFS(
+                    ISOMITTED(x),
+                    arr,
+                    ISOMITTED(y),
+                    XLOOKUP(CONCAT(x & "-"), BYROW(TAKE(arr, , 2) & "-", CONCAT), DROP(arr, , 2)),
+                    ISOMITTED(v),
+                    XLOOKUP(x & "-" & y & "-", BYROW(TAKE(arr, , 2) & "-", CONCAT), DROP(arr, , 2)),
+                    1,
+                    self(self, VSTACK(arr, HSTACK(x, y, v)))
+                )
+            )
+        ),
+        BFS_RECURSIVE, LAMBDA(self, array_parents, queue,
+            LET(
+                row_curr, INDEX(queue, 1, 1),
+                col_curr, INDEX(queue, 1, 2),
+                neighbors, REDUCE(
+                    VSTACK(_collection(_collection, array_parents), LAMBDA(queue)),
+                    SEQUENCE(ROWS(dRow)),
+                    LAMBDA(a, i,
+                        LET(
+                            row_next, row_curr + INDEX(dRow, i, 1),
+                            col_next, col_curr + INDEX(dCol, i, 1),
+                            IF(
+                                IFERROR(
+                                    AND(
+                                        INDEX(color_map, row_next, col_next) = target,
+                                        ISNA(INDEX(a, 1, 1)(row_next, col_next))
+                                    ),
+                                    0
+                                ),
+                                VSTACK(
+                                    INDEX(a, 1, 1)(row_next, col_next, HSTACK(row_curr, col_curr)),
+                                    LAMBDA(VSTACK(INDEX(a, 2, 1)(), HSTACK(row_next, col_next)))
+                                ),
+                                a
+                            )
+                        )
+                    )
+                ),
+                new_queue, INDEX(neighbors, 2, 1)(),
+                parents, INDEX(neighbors, 1, 1),
+                rebuild, LAMBDA(fx, ref,
+                    IF(
+                        AND(parents(ref) = HSTACK(s_row_rel, s_col_rel)),
+                        parents(ref),
+                        VSTACK(fx(fx, parents(ref)), parents(ref))
+                    )
+                ),
+                IF(
+                    AND(row_curr = e_row_rel, col_curr = e_col_rel),
+                    rebuild(rebuild, HSTACK(e_row_rel, e_col_rel)) + HSTACK(row_adjust, col_adjust),
+                    IFS(ROWS(new_queue) > 1, self(self, parents(), DROP(new_queue, 1)))
+                )
+            )
+        ),
+        initial_parents, HSTACK(s_row_rel, s_col_rel, 0, 0),
+        initial_queue, HSTACK(s_row_rel, e_col_rel),
+        path, BFS_RECURSIVE(BFS_RECURSIVE, initial_parents, initial_queue),
+        collected, INDEX(collection_map, INDEX(path, , 1), INDEX(path, , 2)),
+        result, GROUPBY(collected, collected, COUNTA),
+        result
+    )
+)

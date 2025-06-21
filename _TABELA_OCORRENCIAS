@@ -1,0 +1,13 @@
+=LAMBDA(matriz;[help];
+   SE(
+      ISOMITTED(help);
+      LET(
+        l; PARACOL(matriz);
+        AGRUPARPOR(l; l; CONT.VALORES; 0; 0; -2)
+      );
+      "Esta Lambda retorna a lista de ocorrências de cada valor numa matriz; matriz (Obrigatório): Referência à matriz a ser avaliada;
+ help (Opcional): Se qualquer valor for inserido "
+         & "dentro deste campo, a função retorna esta mensagem, explicando os argumentos. Para utilizar a função normalmente,"
+         & " deixe este campo vazio."
+   )
+)

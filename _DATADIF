@@ -1,0 +1,27 @@
+=LAMBDA(dt;periodo;
+   LET(
+     pc; PARACOL(dt);
+     cl;  CLASSIFICAR(pc);
+     sft; EMPILHARV(DESCARTAR(cl;1); PEGAR(cl;-1));
+     DESCARTAR(
+       MAP(
+         cl; sft;
+         LAMBDA(org;sftd;
+           DATADIF(org; sftd;
+             PARÂMETRO(
+               periodo;
+               "anos";  "y";
+               "meses"; "m";
+               "dias";  "d"
+             )
+           )
+         )
+       );
+       -1
+     )
+   )
+ )
+
+/*
+DATADIF adaptado para receber "anos", "meses" ou "dias" no parâmetro de período (invés de "y", "m" e "d") e que aceita array, já retornando as diferenças entre todos eles.
+*/

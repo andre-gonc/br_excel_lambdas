@@ -1,0 +1,252 @@
+//Default pointing used in all lambdas
+Standard_arrows = {"↖"; "↑"; "↗"; "←"; "→"; "↙"; "↓"; "↘"};;
+
+//Extracts the line number from an address
+_ROW = LAMBDA(address; --REGEX.EXTRACT(PARACOL(address); "\d+"));;
+
+//Extracts the column number from an address
+_COL = LAMBDA(address;
+    MAP(
+        address;
+        LAMBDA(add;
+            LET(str; REGEX.EXTRACT(add; "\pL"; 1); SOMASEQÜÊNCIA(26; COLS(str) - 1; -1; CÓDIGO(str) - 64))
+        )
+    )
+);;
+
+//Does the same as the OFFSET function from an address, without needing a range
+_OFFSET_INDIRECT = LAMBDA(txtRef; [rows]; [cols]; [radius]; [no_diagonal];
+    LET(
+        row_ref; _ROW(txtRef);
+        col_ref; _COL(txtRef);
+        offst; SE(ISOMITTED(radius); 0; SEQUÊNCIA(2 * radius + 1; ; -radius));
+        new_row; offst + row_ref + rows;
+        new_col; offst + col_ref + cols;
+        SES(
+            ISOMITTED(radius);
+            ENDEREÇO(new_row; new_col; 4);
+            ISOMITTED(no_diagonal);
+            PARACOL(ENDEREÇO(new_row; PARALIN(new_col); 4); 2);
+            1;
+            ÚNICO(EMPILHARV(ENDEREÇO(new_row; col_ref; 4); ENDEREÇO(row_ref; new_col; 4)))
+        )
+    )
+);;
+
+//Moves a cell based on the direction pointed by Standard_arrows (this lambda is the basis for the other arrow displacement lambdas)
+_MOVE = LAMBDA(textRef; arrow; [nTimes];
+    LET(
+        address; SCAN(
+            textRef;
+            SEQUÊNCIA(SE(ISOMITTED(nTimes); 1; nTimes));
+            LAMBDA(a; _;
+                LET(
+                    index; CORRESPX(arrow; Standard_arrows);
+                    column; _COL(a) + ESCOLHER(index; -1; 0; 1; -1; 1; -1; 0; 1);
+                    row; _ROW(a) + ESCOLHER(index; -1; -1; -1; 0; 0; 1; 1; 1);
+                    ENDEREÇO(row; column; 4)
+                )
+            )
+        );
+        SE(ISOMITTED(nTimes); address; EMPILHARV(textRef; address))
+    )
+);;
+
+//Moves sequentially through a map based on a chain of consecutive arrows, if collection_map is specified the number of objects collected along the way will be counted
+_SEQUENTIAL_MOVE = LAMBDA(textRef; arrows; [collection_map]; [group];
+    LET(
+        address; SCAN(textRef; REGEX.EXTRACT(arrows; UNIRTEXTO("|"; ; Standard_arrows); 1); _MOVE);
+        SE(
+            ISOMITTED(collection_map);
+            address;
+            LET(
+                start_row; @LIN(collection_map) - 1;
+                start_col; @COL(collection_map) - 1;
+                collections; ÍNDICE(
+                    collection_map;
+                    _ROW(address) - start_row;
+                    _COL(address) - start_col
+                );
+                SE(
+                    ISOMITTED(group);
+                    EMPILHARH(address; collections);
+                    AGRUPARPOR(collections; collections; CONT.VALORES; ; ; -2)
+                )
+            )
+        )
+    )
+);;
+
+//Travels a path formed by arrows nTimes times
+ARROW_PATH = LAMBDA(textRef; nTimes;
+    EMPILHARV(
+        textRef;
+        SCAN(textRef; SEQUÊNCIA(nTimes); LAMBDA(a; v; SEERRO(_MOVE(a; INDIRETO(a)); a)))
+    )
+);;
+
+//intermediate lambda to stack results during iterations in other lambdas
+_STACK = LAMBDA(arr;
+    LAMBDA([x]; [y]; [v];
+        SES(
+            ISOMITTED(x);
+            arr;
+            ISOMITTED(y);
+            PROCX(CONCAT(x & "-"); BYROW(PEGAR(arr; ; 2) & "-"; CONCAT); DESCARTAR(arr; ; 2));
+            ISOMITTED(v);
+            PROCX(x & "-" & y & "-"; BYROW(PEGAR(arr; ; 2) & "-"; CONCAT); DESCARTAR(arr; ; 2));
+            1;
+            _STACK(EMPILHARV(arr; EMPILHARH(x; y; v)))
+        )
+    )
+);;
+
+//Returns the distance between a starting address and an ending address, color_map must be filled with any content that differentiates colors (color index, color name, RGB, etc.)
+_DISTANCE = LAMBDA(start_ref; end_ref; diagonal; [color_map]; [obstacles]; [obstacle_map];
+    SE(
+        ISOMITTED(color_map);
+        LET(
+            dr; ABS(_ROW(start_ref) - _ROW(end_ref));
+            dc; ABS(_COL(start_ref) - _COL(end_ref));
+            SE(diagonal; MÁXIMO(dr; dc); dr + dc)
+        );
+        LET(
+            n_rows; LINS(color_map);
+            n_cols; COLS(color_map);
+            row_adjust; @LIN(color_map) - 1;
+            col_adjust; @COL(color_map) - 1;
+            relative_start_row; _ROW(start_ref) - row_adjust;
+            relative_start_col; _COL(start_ref) - col_adjust;
+            target; +ÍNDICE(color_map; relative_start_row; relative_start_col);
+            relative_end_row; _ROW(end_ref) - row_adjust;
+            relative_end_col; _COL(end_ref) - col_adjust;
+            d_row; SE(diagonal; {-1; -1; -1; 0; 0; 1; 1; 1}; {-1; 0; 0; 1});
+            d_col; SE(diagonal; {-1; 0; 1; -1; 1; -1; 0; 1}; {0; -1; 1; 0});
+            RECURSIVE_BFS; LAMBDA(self; distance_stack; queue;
+                LET(
+                    row_curr; ÍNDICE(queue; 1; 1);
+                    col_curr; ÍNDICE(queue; 1; 2);
+                    dist_curr; ÍNDICE(queue; 1; 3);
+                    neighbors; REDUCE(
+                        EMPILHARV(_STACK(distance_stack); LAMBDA(queue));
+                        SEQUÊNCIA(LINS(d_row));
+                        LAMBDA(a; i;
+                            LET(
+                                next_row; row_curr + ÍNDICE(d_row; i; 1);
+                                next_col; col_curr + ÍNDICE(d_col; i; 1);
+                                SE(
+                                    SEERRO(
+                                        E(
+                                            ÍNDICE(color_map; next_row; next_col) = target;
+                                            É.NÃO.DISP(ÍNDICE(a; 1; 1)(next_row; next_col))
+                                        );
+                                        0
+                                    );
+                                    EMPILHARV(
+                                        ÍNDICE(a; 1; 1)(next_row; next_col; dist_curr + 1);
+                                        LAMBDA(
+                                            EMPILHARV(
+                                                ÍNDICE(a; 2; 1)();
+                                                EMPILHARH(next_row; next_col; dist_curr + 1)
+                                            )
+                                        )
+                                    );
+                                    a
+                                )
+                            )
+                        )
+                    );
+                    new_queue; ÍNDICE(neighbors; 2; 1)();
+                    SE(
+                        E(row_curr = relative_end_row; col_curr = relative_end_col);
+                        dist_curr - 1;
+                        SES(
+                            LINS(new_queue) > 1;
+                            self(self; ÍNDICE(neighbors; 1; 1)(); DESCARTAR(new_queue; 1))
+                        )
+                    )
+                )
+            );
+            start_queue; EMPILHARH(relative_start_row; relative_start_col; 1);
+            result; RECURSIVE_BFS(RECURSIVE_BFS; start_queue; start_queue);
+            result
+        )
+    )
+);;
+
+//Travels a path of the same color on a map counting how many items are collected along the way. If group is omitted, a list with addresses of all cells traveled and the items collected in each one will be returned. This lambda uses two maps as input: color_map with the identification of the colors and collect_map with the items to be collected.
+_COLLECT = LAMBDA(start_ref; end_ref; diagonal; color_map; collect_map; [group];
+    LET(
+        n_rows; LINS(color_map);
+        n_cols; COLS(color_map);
+        row_adjust; SEERRO(@LIN(color_map) - 1; @LIN(collect_map) - 1);
+        col_adjust; SEERRO(@COL(color_map) - 1; @COL(collect_map) - 1);
+        relative_start_row; _ROW(start_ref) - row_adjust;
+        relative_start_col; _COL(start_ref) - col_adjust;
+        target; ÍNDICE(color_map; relative_start_row; relative_start_col);
+        relative_end_row; _ROW(end_ref) - row_adjust;
+        relative_end_col; _COL(end_ref) - col_adjust;
+        d_row; SE(diagonal; {-1; -1; -1; 0; 0; 1; 1; 1}; {-1; 0; 0; 1});
+        d_col; SE(diagonal; {-1; 0; 1; -1; 1; -1; 0; 1}; {0; -1; 1; 0});
+        RECURSIVE_BFS; LAMBDA(self; distance_stack; queue;
+            LET(
+                curr_row; ÍNDICE(queue; 1; 1);
+                curr_col; ÍNDICE(queue; 1; 2);
+                neighbors; REDUCE(
+                    EMPILHARV(_STACK(distance_stack); LAMBDA(queue));
+                    SEQUÊNCIA(LINS(d_row));
+                    LAMBDA(a; i;
+                        LET(
+                            next_row; curr_row + ÍNDICE(d_row; i; 1);
+                            next_col; curr_col + ÍNDICE(d_col; i; 1);
+                            SE(
+                                SEERRO(
+                                    E(
+                                        ÍNDICE(color_map; next_row; next_col) = target;
+                                        É.NÃO.DISP(ÍNDICE(a; 1; 1)(next_row; next_col))
+                                    );
+                                    0
+                                );
+                                EMPILHARV(
+                                    ÍNDICE(a; 1; 1)(
+                                        next_row;
+                                        next_col;
+                                        EMPILHARH(curr_row; curr_col)
+                                    );
+                                    LAMBDA(
+                                        EMPILHARV(ÍNDICE(a; 2; 1)(); EMPILHARH(next_row; next_col))
+                                    )
+                                );
+                                a
+                            )
+                        )
+                    )
+                );
+                new_queue; ÍNDICE(neighbors; 2; 1)();
+                parents; ÍNDICE(neighbors; 1; 1);
+                rebuild; LAMBDA(fx; ref;
+                    SE(
+                        E(parents(ref) = EMPILHARH(relative_start_row; relative_start_col));
+                        parents(ref);
+                        EMPILHARV(fx(fx; parents(ref)); parents(ref))
+                    )
+                );
+                SE(
+                    E(curr_row = relative_end_row; curr_col = relative_end_col);
+                    rebuild(rebuild; EMPILHARH(relative_end_row; relative_end_col));
+                    SES(LINS(new_queue) > 1; self(self; parents(); DESCARTAR(new_queue; 1)))
+                )
+            )
+        );
+        start_parents; EMPILHARH(relative_start_row; relative_start_col; 0; 0);
+        start_queue; EMPILHARH(relative_start_row; relative_start_col);
+        result; RECURSIVE_BFS(RECURSIVE_BFS; start_parents; start_queue);
+        collected; ÍNDICE(collect_map; ÍNDICE(result; ; 1); ÍNDICE(result; ; 2));
+        addresses; ENDEREÇO(ÍNDICE(result; ; 1) + row_adjust; ÍNDICE(result; ; 2) + col_adjust; 4);
+        SE(
+            ISOMITTED(group);
+            EMPILHARH(addresses; collected);
+            AGRUPARPOR(collected; collected; CONT.VALORES; 0; ; -2)
+        )
+    )
+);;

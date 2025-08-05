@@ -1,52 +1,105 @@
-=LAMBDA(grid_map, start_ref, end_ref, diagonal,
-    LET(
-        num_rows, ROWS(grid_map),
-        num_cols, COLUMNS(grid_map),
-        _col, LAMBDA(add, LET(str, REGEXEXTRACT(add, "\pL", 1), SERIESSUM(26, COLUMNS(str) - 1, -1, CODE(str) - 64))),
-        s_row_rel, REGEXEXTRACT(start_ref, "\d+") - @ROW(grid_map) + 1,
-        s_col_rel, _col(start_ref) - @COLUMN(grid_map) + 1,
-        cel_start, +INDEX(grid_map, s_row_rel, s_col_rel),
-        e_row_rel, REGEXEXTRACT(end_ref, "\d+") - @ROW(grid_map) + 1,
-        e_col_rel, _col(end_ref) - @COLUMN(grid_map) + 1,
-        d_row, IF(diagonal, {-1; -1; -1; 0; 0; 1; 1; 1}, {-1; 0; 0; 1}),
-        d_col, IF(diagonal, {-1; 0; 1; -1; 1; -1; 0; 1}, {0; -1; 1; 0}),
-        _collection, LAMBDA(self, arr,
-            LAMBDA(r, c, [v], IF(ISOMITTED(v), INDEX(arr, r, c), self(self, IF((SEQUENCE(num_rows) = r) * (SEQUENCE(, num_cols) = c), v, arr))))
-        ),
-        BFS_RECURSIVE, LAMBDA(self, array_dist, queue,
-            LET(
-                row_curr, INDEX(queue, 1, 1),
-                col_curr, INDEX(queue, 1, 2),
-                dist_curr, INDEX(queue, 1, 3),
-                neighbors, REDUCE(
-                    VSTACK(_collection(_collection, array_dist), LAMBDA(queue)),
-                    SEQUENCE(ROWS(d_row)),
-                    LAMBDA(a, i,
-                        LET(
-                            row_next, row_curr + INDEX(d_row, i, 1),
-                            col_next, col_curr + INDEX(d_col, i, 1),
-                            IF(
-                                IFERROR(AND(INDEX(grid_map, row_next, col_next) = cel_start, INDEX(a, 1, 1)(row_next, col_next) = 0), 0),
-                                VSTACK(
-                                    INDEX(a, 1, 1)(row_next, col_next, dist_curr + 1),
-                                    LAMBDA(VSTACK(INDEX(a, 2, 1)(), HSTACK(row_next, col_next, dist_curr + 1)))
-                                ),
-                                a
-                            )
-                        )
-                    )
-                ),
-                new_queue, INDEX(neighbors, 2, 1)(),
-                IF(
-                    AND(row_curr = e_row_rel, col_curr = e_col_rel),
-                    dist_curr - 1,
-                    IFS(ROWS(new_queue) > 1, self(self, INDEX(neighbors, 1, 1)(0, 0), DROP(new_queue, 1)))
+------------------------------------------------------- Português --------------------------------------------------------------
+=LAMBDA(inicio_ref; fim_ref; diagonal; [grid_cor]; [caminho_valido];
+    SE(
+        ISOMITTED(grid_cor);
+        LET(
+            _LIN; LAMBDA(endereco; --REGEX.EXTRAIR(PARACOL(endereco); "\d+"));
+            _COL; LAMBDA(endereco;
+                MAP(
+                    endereco;
+                    LAMBDA(add; LET(str; REGEX.EXTRAIR(add; "\pL"; 1); SOMASEQÜÊNCIA(26; COLS(str) - 1; -1; CÓDIGO(str) - 64)))
                 )
-            )
+            );
+            dr; ABS(_LIN(inicio_ref) - _LIN(fim_ref));
+            dc; ABS(_COL(inicio_ref) - _COL(fim_ref));
+            SE(diagonal; MÁXIMO(dr; dc); dr + dc)
+        );
+        LET(
+            _LIN; LAMBDA(endereco; --REGEX.EXTRAIR(PARACOL(endereco); "\d+"));
+            _COL; LAMBDA(endereco;
+                MAP(
+                    endereco;
+                    LAMBDA(add; LET(str; REGEX.EXTRAIR(add; "\pL"; 1); SOMASEQÜÊNCIA(26; COLS(str) - 1; -1; CÓDIGO(str) - 64)))
+                )
+            );
+            _STACK_NUM; LAMBDA(num_1; num_2; [num_3]; [num_4]; [num_5];
+                num_1 + num_2 * 10 ^ 3 + num_3 * 10 ^ 6 + num_4 * 10 ^ 9 + num_5 * 10 ^ 12
+            );
+            lin_ajust; @LIN(grid_cor) - 1;
+            col_ajust; @COL(grid_cor) - 1;
+            ini_lin_rel; _LIN(inicio_ref) - lin_ajust;
+            ini_col_rel; _COL(inicio_ref) - col_ajust;
+            target; SE(
+                ISOMITTED(caminho_valido);
+                +ÍNDICE(grid_cor; ini_lin_rel; ini_col_rel);
+                EMPILHARV(+ÍNDICE(grid_cor; ini_lin_rel; ini_col_rel); caminho_valido)
+            );
+            fim_rel; _STACK_NUM(_LIN(fim_ref) - lin_ajust; _COL(fim_ref) - col_ajust);
+            off; SE(diagonal; {-1001; -1; 999; -1000; 1000; -999; 1; 1001}; {-1; -1000; 1000; 1});
+            BFS_RECURSIVO; LAMBDA(self; distancias; fila;
+                LET(
+                    atual; @fila;
+                    proximo; atual + off;
+                    check; ÉNÚM(CORRESPX(ÍNDICE(grid_cor; MOD(proximo; 1000); MOD(QUOCIENTE(proximo; 1000); 1000)); target)) *
+                        ÉERROS(CORRESPX(MOD(proximo; 10 ^ 6); distancias)) * (MOD(proximo; 1000000) > 1000);
+                    nova_fila; SE(OU(check); EMPILHARV(fila; FILTRO(proximo + 10 ^ 6; check)); fila);
+                    nova_distacia; SE(OU(check); EMPILHARV(distancias; FILTRO(MOD(proximo; 10 ^ 6); check)); distancias);
+                    SE(E(MOD(atual; 10 ^ 6) = fim_rel); QUOCIENTE(atual; 10 ^ 6); self(self; nova_distacia; DESCARTAR(nova_fila; 1)))
+                )
+            );
+            inicio; _STACK_NUM(ini_lin_rel; ini_col_rel);
+            resultado; BFS_RECURSIVO(BFS_RECURSIVO; inicio; inicio);
+            resultado
+        )
+    )
+)
+
+'------------------------------------------------------ Inglês --------------------------------------------------------------
+=LAMBDA(ref_start, ref_end, diagonal, [map], [valid_path],
+    IF(
+        ISOMITTED(map),
+        LET(
+            _ROW, LAMBDA(address, --REGEXEXTRACT(TOCOL(address), "\d+")),
+            _COL, LAMBDA(address,
+                MAP(address, LAMBDA(add, LET(str, REGEXEXTRACT(add, "\pL", 1), SERIESSUM(26, COLUMNS(str) - 1, -1, CODE(str) - 64))))
+            ),
+            off_row, ABS(_ROW(ref_start) - _ROW(ref_end)),
+            off_col, ABS(_COL(ref_start) - _COL(ref_end)),
+            IF(diagonal, MAX(off_row, off_col), off_row + off_col)
         ),
-        initial_dist, IF((SEQUENCE(num_rows) = s_row_rel) * (SEQUENCE(, num_cols) = s_col_rel), 1, 0),
-        initial_queue, HSTACK(s_row_rel, s_col_rel, 1),
-        result, BFS_RECURSIVE(BFS_RECURSIVE, initial_dist, initial_queue),
-        result
+        LET(
+            _ROW, LAMBDA(address, --REGEXEXTRACT(TOCOL(address), "\d+")),
+            _COL, LAMBDA(address,
+                MAP(address, LAMBDA(add, LET(str, REGEXEXTRACT(add, "\pL", 1), SERIESSUM(26, COLUMNS(str) - 1, -1, CODE(str) - 64))))
+            ),
+            _STACK_NUM, LAMBDA(num_1, num_2, [num_3], [num_4], [num_5],
+                num_1 + num_2 * 10 ^ 3 + num_3 * 10 ^ 6 + num_4 * 10 ^ 9 + num_5 * 10 ^ 12
+            ),
+            row_adjust, @ROW(map) - 1,
+            col_adjust, @COLUMN(map) - 1,
+            rel_start_r, _ROW(ref_start) - row_adjust,
+            rel_start_c, _COL(ref_start) - col_adjust,
+            target, IF(
+                ISOMITTED(valid_path),
+                +INDEX(map, rel_start_r, rel_start_c),
+                VSTACK(+INDEX(map, rel_start_r, rel_start_c), valid_path)
+            ),
+            rel_end, _STACK_NUM(_ROW(ref_end) - row_adjust, _COL(ref_end) - col_adjust),
+            off, IF(diagonal, {-1001; -1; 999; -1000; 1000; -999; 1; 1001}, {-1; -1000; 1000; 1}),
+            BFS_RECURSIVE, LAMBDA(self, visits, queue,
+                LET(
+                    curr, @queue,
+                    next, curr + off,
+                    check, ISNUMBER(XMATCH(INDEX(map, MOD(next, 1000), MOD(QUOTIENT(next, 1000), 1000)), target)) *
+                        ISERROR(XMATCH(MOD(next, 10 ^ 6), visits)) * (MOD(next, 1000000) > 1000),
+                    queue, IF(OR(check), VSTACK(queue, FILTER(next + 10 ^ 6, check)), queue),
+                    visits, IF(OR(check), VSTACK(visits, FILTER(MOD(next, 10 ^ 6), check)), visits),
+                    IF(AND(MOD(curr, 10 ^ 6) = rel_end), QUOTIENT(curr, 10 ^ 6), self(self, visits, DROP(queue, 1)))
+                )
+            ),
+            start, _STACK_NUM(rel_start_r, rel_start_c),
+            result, BFS_RECURSIVE(BFS_RECURSIVE, start, start),
+            result
+        )
     )
 )

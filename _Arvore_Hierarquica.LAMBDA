@@ -1,0 +1,23 @@
+=LAMBDA(produtos_iniciais;lista_produtos;lista_componentes;
+    LET(
+        _tabela_lookup; AGRUPARPOR(
+            PARACOL(lista_produtos; 3);
+            lista_componentes;
+            LAMBDA(array_interno; UNIRTEXTO("|"; 1; array_interno));
+            0;0
+        );
+        _explodir; LAMBDA(self;itens_atuais;
+            LET(
+                string_antes; UNIRTEXTO("|"; 1; itens_atuais);
+                string_depois; UNIRTEXTO("|"; 1; MAP(itens_atuais; LAMBDA(item; SEERRO(PROCV(item; _tabela_lookup; 2; 0); item))));
+                SE(
+                    string_antes = string_depois;
+                    DIVIDIRTEXTO(string_antes; ; "|");
+                    self(self; DIVIDIRTEXTO(string_depois; ; "|"))
+                )
+            )
+        );
+        _resultado_bruto; _explodir(_explodir; PARACOL(produtos_iniciais; 3));
+        CLASSIFICAR(ÚNICO(_resultado_bruto))
+    )
+)

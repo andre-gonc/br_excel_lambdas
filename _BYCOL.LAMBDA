@@ -1,0 +1,17 @@
+=LAMBDA(x; fx; 
+   LET(
+     n; COLS(x);
+     SE(
+       n > 1;
+       LET(
+         l; QUOCIENTE(n; 2);
+         x¹; PEGAR(x;; l);
+         x²; DESCARTAR(x;; l);
+         y¹; _BYCOL(x¹; fx);
+         y²; _BYCOL(x²; fx);
+         SEERRO(EMPILHARH(y¹; y²); "")
+       );
+       fx(x)
+     )
+   )
+ )

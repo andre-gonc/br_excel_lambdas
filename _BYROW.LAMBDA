@@ -7,8 +7,8 @@
          l; QUOCIENTE(n; 2);
          x¹; PEGAR(x; l);
          x²; DESCARTAR(x; l);
-         y¹; _BiRow(x¹; fx);
-         y²; _BiRow(x²; fx);
+         y¹; _BYROW(x¹; fx);
+         y²; _BYROW(x²; fx);
          SEERRO(EMPILHARV(y¹; y²); "")
        );
        fx(x)

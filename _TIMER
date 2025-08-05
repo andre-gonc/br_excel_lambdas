@@ -1,0 +1,7 @@
+=LAMBDA(fx; 
+  LET(
+    st;AGORA();
+    result;fx;
+    TEXTO(AGORA()-st;"[s],000")
+  )
+ )

@@ -1,0 +1,7 @@
+=LAMBDA(cateto_a;cateto_b;[help];
+   SE(
+     ISOMITTED(help);
+     RAIZ(POTÊNCIA(cateto_a;2)+POTÊNCIA(cateto_b;2));
+     "Esta lambda calcula a hipotenusa de um triângulo retângulo. Se você precisar de orientação pra usar ela, por favor, volte 10 casas"
+   )
+ )

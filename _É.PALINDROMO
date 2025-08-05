@@ -1,0 +1,20 @@
+=LAMBDA(
+  texto;
+  [case_sensitive];
+  [help];  
+  SE(ISOMITTED(help);  
+  LET(    
+    lista; REGEX.EXTRAIR(texto;".";1);    
+    list_size; CONT.VALORES(lista);    
+    lista_inv; CLASSIFICARPOR(lista; SEQUÊNCIA(;list_size;;-1));    
+    SE(
+      (ISOMITTED(case_sensitive)) + (case_sensitive = 1);  
+      E(EXATO(lista; lista_inv)); 
+      E(lista = lista_inv)
+    )  
+  );  
+  "
+  Esta Lambda avalia se o valor contido numa determinada célula é um palíndromo. 
+  texto: recebe a referência da célula a ser avaliada; 
+  case_sensitive (Opcional): Ativado por padrão."&" Se ativado, uma versão maiúscula e outra minúscula de uma mesma letra, são considerados diferentes,"&" e portanto, não palíndromo. 'Ovo' não seria considerado palíndromo, apenas 'OVO' seria. Se desativado, 'Ovo' é considerado palíndromo; 
+  help (Opcional): Se qualquer valor for inserido "&"dentro deste campo, a função retorna esta mensagem, explicando os argumentos. Para utilizar a função normalmente,"&" deixe este campo vazio." ))

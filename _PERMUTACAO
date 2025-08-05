@@ -1,0 +1,29 @@
+=LAMBDA(lista; k;
+    LET(
+        n; CONT.VALORES(lista);
+        inicio; 2 ^ k - 1;
+        dec; SCAN(
+            inicio;
+            SEQUÊNCIA(COMBIN(n; k); ; 0);
+            LAMBDA(x; y;
+                SE(
+                    y = 0;
+                    inicio;
+                    LET(
+                        u; BITAND(x; BITXOR(x; 2 ^ n - 1) + 1);
+                        v; x + u;
+                        BITOR(v; DESLOCDIRBIT(BITXOR(v; x) / u; 2))
+                    )
+                )
+            )
+        );
+        MAP(
+            DECABIN(dec; n);
+            LAMBDA(r;
+                MATRIZPARATEXTO(
+                    FILTRO(PARACOL(lista); --EXT.TEXTO(r; SEQUÊNCIA(n); 1))
+                )
+            )
+        )
+    )
+)

@@ -1,8 +1,8 @@
-=LAMBDA(produtos_iniciais;lista_produtos;lista_componentes;
+=LAMBDA(pais_procurados; lista_pais; lista_filhos;
     LET(
         _tabela_lookup; AGRUPARPOR(
-            PARACOL(lista_produtos; 3);
-            lista_componentes;
+            PARACOL(lista_pais; 3);
+            lista_filhos;
             LAMBDA(array_interno; UNIRTEXTO("|"; 1; array_interno));
             0;0
         );
@@ -17,7 +17,7 @@
                 )
             )
         );
-        _resultado_bruto; _explodir(_explodir; PARACOL(produtos_iniciais; 3));
+        _resultado_bruto; _explodir(_explodir; PARACOL(pais_procurados; 3));
         CLASSIFICAR(ÚNICO(_resultado_bruto))
     )
 )

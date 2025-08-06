@@ -1,0 +1,36 @@
+=LAMBDA(ano;
+   LET(
+     pascoa; _PASCOA(ano);
+     carnaval; pascoa-47;
+     qrt_cnzs; pascoa-46;
+     sxt_snta; pascoa-2;
+     crps_crst; pascoa+60;
+     dia_maes; DATA(ano; 5; 15-DIA.DA.SEMANA(DATA(ano;5;14)));
+     dia_pais; DATA(ano; 8; 15-DIA.DA.SEMANA(DATA(ano;8;14)));
+     EMPILHARH(
+       EMPILHARV(
+         "Carnaval";
+         "Quarta-feira de Cinzas";
+         "Sexta-feira Santa";
+         "Pascoa";
+         "Corpus Christi";
+         "Dia das Mães";
+         "Dia dos Pais"
+       );
+       MAP(
+         EMPILHARV(
+           carnaval;
+           qrt_cnzs;
+           sxt_snta;
+           pascoa;
+           crps_crst;
+           dia_maes;
+           dia_pais
+         );
+         LAMBDA(i;
+           TEXTO(i; "dd/mm/e")
+         )
+       )
+     )
+   )
+ )

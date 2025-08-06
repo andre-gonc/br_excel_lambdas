@@ -1,0 +1,24 @@
+=LAMBDA(ano;
+   LET(
+     a; MOD(ano; 19);
+     b; QUOCIENTE(ano; 100);
+     c; MOD(ano; 100);
+     d; QUOCIENTE(b; 4);
+     e; MOD(b; 4);
+     f; QUOCIENTE(b + 8; 25);
+     g; QUOCIENTE(b - f + 1; 3);
+     h; MOD(19 * a + b - d - g + 15; 30);
+     i; QUOCIENTE(c; 4);
+     k; MOD(c; 4);
+     l; MOD(32 + 2 * e + 2 * i - h - k; 7);
+     m; QUOCIENTE(a + 11 * h + 22 * l; 451);
+     mes; QUOCIENTE(h + l - 7 * m + 114; 31);
+     dia; MOD(h + l - 7 * m + 114; 31) + 1;
+     DATA(ano; mes; dia)
+   )
+ )
+
+// Esta função calcula a data da páscoa em qualquer ano que for passado como input. 
+// A partir dela, é possível calcular todos os feriados móveis do ano sem qualquer problema.
+// Também neste repositório está uma LAMBDA que trás todos os feriados móveis do ano, que consome desta Lambda.
+// Portanto, caso deseje usar a lambda _FERIADOS_MOVEIS ou a _FERIADOS, será necessário importar esta Lambda.

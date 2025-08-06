@@ -1,5 +1,6 @@
-=LAMBDA(ano;
+=LAMBDA([ano];
    LET(
+     ano; SE(ISOMITTED(ano); ANO(HOJE()); ano);
      pascoa; _PASCOA(ano);
      carnaval; pascoa-47;
      qrt_cnzs; pascoa-46;

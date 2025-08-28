@@ -1,0 +1,31 @@
+=LAMBDA(texto1; texto2;
+   LET(
+     string1; SE(NÚM.CARACT(texto1) <= NÚM.CARACT(texto2); texto1; texto2);         
+     string2; SE(NÚM.CARACT(texto1) <= NÚM.CARACT(texto2); texto2; texto1);         
+     m; NÚM.CARACT(string1);         
+     n; NÚM.CARACT(string2);         
+     SE(MÍNIMO(m; n) = 0; MÁXIMO(m; n);             
+       LET(                 
+         primeira_linha; SEQUÊNCIA(1; n + 1; 0);
+         matriz_virtual; REDUCE(primeira_linha; SEQUÊNCIA(m); LAMBDA(linha_anterior;i;                     
+         LET(
+           char_s1; EXT.TEXTO(string1; i; 1);
+           linha_seguinte; SCAN(i; SEQUÊNCIA(1; n); LAMBDA(valor_esquerda;j;
+           LET(
+               char_s2; EXT.TEXTO(string2; j; 1);
+               custo_subst; SE(char_s1 = char_s2; 0; 1);
+               valor_diagonal; ÍNDICE(linha_anterior; j);
+               valor_cima; ÍNDICE(linha_anterior; j + 1);
+               MÍNIMO(
+                 valor_esquerda + 1;
+                 valor_cima + 1;
+                 valor_diagonal + custo_subst
+               )
+           )));
+           EMPILHARH(i; linha_seguinte)
+         )));
+         ÍNDICE(matriz_virtual; 1; n + 1)
+       )
+     )
+   )
+)

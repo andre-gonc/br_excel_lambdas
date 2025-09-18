@@ -1,0 +1,5 @@
+=LAMBDA(case_sheet_name;initial_question_number;final_question_number;[exclude_examples];
+   LET(filtro1; FILTRO(INDIRETO(case_sheet_name&"!"&"G1:BZ1000"); ÉNÚM(CORRESPX(INDIRETO(case_sheet_name&"!"&"B1:B1000"); SEQUÊNCIA(final_question_number-initial_question_number;;initial_question_number)));"No match found"); filtro2; FILTRO(INDIRETO(case_sheet_name&"!"&"G1:BZ1000"); (ÉNÚM(CORRESPX(--INDIRETO(case_sheet_name&"!"&"B1:B1000"); SEQUÊNCIA(final_question_number-initial_question_number;;initial_question_number)))) + (ÉNÚM(CORRESPX(--INDIRETO(case_sheet_name&"!"&"B1:B1000"); "Example"&SEQUÊNCIA(QUOCIENTE(final_question_number; 20)+1))));"No match found");
+   SE((ISOMITTED(exclude_examples)) + (exclude_examples = 1);
+     PARACOL(SES(NÚM.CARACT(filtro1);filtro1);2);PARACOL(SES(NÚM.CARACT(filtro1);filtro2);2)
+     )))
